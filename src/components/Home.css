@@ -1,68 +1,71 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
 
 .home {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-image: url('../pictures/home2.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url('../pictures/home2.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .content-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 80%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 80%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
 }
 
 .text-container {
     max-width: 420px;
-  flex: 1;
-  margin-right: 2rem;
+    flex: 1;
+    margin-right: 2rem;
 }
 
 h1 {
-  font-family: 'Nunito', Arial, sans-serif;
-  font-size: 50.008px;
-  font-weight: 800;
-  line-height: 62.7691px;
-  margin-bottom: 1rem;
-  margin-top: -0.2rem;
-  color: rgba(23, 36, 43);
+    font-family: 'Nunito', Arial, sans-serif;
+    font-size: 50.008px;
+    font-weight: 800;
+    line-height: 62.7691px;
+    margin-bottom: 1rem;
+    margin-top: -0.2rem;
+    color: rgba(23, 36, 43);
 }
 
 p {
     font-family: 'Nunito', Arial, sans-serif;
     font-weight: 400;
-  font-size: 17px;
-  margin-bottom: 2rem;
-  color: rgb(111, 121, 126);
+    font-size: 17px;
+    margin-bottom: 2rem;
+    color: rgb(111, 121, 126);
 }
 
 button {
     font-family: 'Nunito', Arial, sans-serif;
     font-weight: 600;
-  padding: 0.4rem 2rem;
-  font-size: 17px;
-  background-color: rgb(23, 36, 43);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+    padding: 0.4rem 2rem;
+    font-size: 17px;
+    background-color: rgb(23, 36, 43);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.start-game-button:hover {
+    background-color: rgb(92, 92, 92);
 }
 
 .image-container {
-  flex: 1;
+    flex: 1;
 }
 
 img {
-  max-width: 100%;
-  height: auto;
+    max-width: 100%;
+    height: auto;
 }
