@@ -18,13 +18,13 @@
     width: 80%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 0rem;
 }
 
 .text-container {
     max-width: 420px;
     flex: 1;
-    margin-right: 2rem;
+    margin-right: 0rem;
 }
 
 h1 {
