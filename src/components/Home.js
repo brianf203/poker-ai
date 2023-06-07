@@ -7,12 +7,13 @@ const Home = () => {
     <div className="home">
       <div className="content-container">
         <div className="text-container">
-          <h1>Welcome to Brian's Poker AI</h1>
-          <p>Discover the power of our advanced poker AI.</p>
-          <button>Start Game</button>
+          <h1>Play against the best <span style={{ color: 'rgb(58, 175, 170)' }}>poker AI</span> in the world</h1>
+          <p>Challenge the best poker AI in the world. Brian's AI has proven its dominance against top AI agents and professional players over thousands of hands with an impressive win rate of 23BB/100.</p>
+          <p>Dive into the realm of strategic thinking and master poker strategy. Analyzing vast data with sophisticated mathematical models, our nengine employs probability theory to assess odds perfectly. Witness the power of AI-driven probability decision-making with Brian's AI.</p>
+            <button href="/game">Start Game</button>
         </div>
         <div className="image-container">
-          <img src={pokerImage} alt="Poker AI" />
+          <img src="https://uploads-ssl.webflow.com/62b9dcb3bebc7275c12af64d/638be86995fb436e0d38c8a2_Group%20464.svg" alt="Poker AI" />
         </div>
       </div>
     </div>

@@ -1,11 +1,14 @@
-/* src/components/Home.css */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
 
 .home {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f2f2f2;
+  background-image: url('../pictures/home2.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .content-container {
@@ -16,32 +19,42 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
 }
 
 .text-container {
+    max-width: 420px;
   flex: 1;
   margin-right: 2rem;
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-family: 'Nunito', Arial, sans-serif;
+  font-size: 50.008px;
+  font-weight: 800;
+  line-height: 62.7691px;
   margin-bottom: 1rem;
+  margin-top: -0.2rem;
+  color: rgba(23, 36, 43);
 }
 
 p {
-  font-size: 1.2rem;
+    font-family: 'Nunito', Arial, sans-serif;
+    font-weight: 400;
+  font-size: 17px;
   margin-bottom: 2rem;
+  color: rgb(111, 121, 126);
 }
 
 button {
-  padding: 1rem 2rem;
-  font-size: 1.2rem;
-  background-color: #4caf50;
+    font-family: 'Nunito', Arial, sans-serif;
+    font-weight: 600;
+  padding: 0.4rem 2rem;
+  font-size: 17px;
+  background-color: rgb(23, 36, 43);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
