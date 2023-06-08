@@ -1,9 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Game.css';
-import image1 from '../pictures/2c.png';
-import image2 from '../pictures/2d.png';
-import image3 from '../pictures/2h.png';
-import image4 from '../pictures/2s.png';
+import { getCardImage } from './Cards';
 
 
 const Game = () => {
@@ -31,7 +28,14 @@ const Game = () => {
 
     useEffect(() => {
         prevButtonMessageRef.current = buttonMessage;
-      }, [buttonMessage]);
+    }, [buttonMessage]);
+
+    const CardImage = ({ cardName }) => {
+        const imagePath = getCardImage(cardName);
+        return imagePath ? (
+            <img src={imagePath} alt={`Image ${cardName}`} style={{ width: '25%', height: 'auto' }} />
+        ) : null;
+    };
 
     return (
         <div className="game-container">
@@ -45,42 +49,42 @@ const Game = () => {
                 </div>
             </div>
             <div className="top-middle">
-                <img src={image1} alt={image1} style={{ width: '25%', height: 'auto' }} />
-                <img src={image3} alt="Image 1" style={{ width: '25%', height: 'auto' }} />
+                <CardImage cardName="back" />
+                <CardImage cardName="back" />
             </div>
             <div className="middle-middle">
-                <img src={image1} alt="Image 1" style={{ width: '25%', height: 'auto' }} />
-                <img src={image3} alt="Image 1" style={{ width: '25%', height: 'auto' }} />
-                <img src={image4} alt="Image 1" style={{ width: '25%', height: 'auto' }} />
-                <img src={image1} alt="Image 1" style={{ width: '25%', height: 'auto' }} />
-                <img src={image2} alt="Image 1" style={{ width: '25%', height: 'auto' }} />
+                <CardImage cardName="10h" />
+                <CardImage cardName="kd" />
+                <CardImage cardName="ac" />
+                <CardImage cardName="back" />
+                <CardImage cardName="back" />
             </div>
             <div className="left-middle">
-                <img src={image4} alt="Image 1" style={{ width: '25%', height: 'auto' }} />
+                <CardImage cardName="back" />
             </div>
             <div className="bottom-middle">
-                <img src={image2} alt="Image 1" style={{ width: '25%', height: 'auto' }} />
-                <img src={image3} alt="Image 1" style={{ width: '25%', height: 'auto' }} />
+                <CardImage cardName="as" />
+                <CardImage cardName="ks" />
             </div>
             <div className="bottom-left">You: {userBal.toLocaleString()}</div>
             <div className="bottom-right">
-                    <div className="slider-container">
-                        <input
-                            type="text"
-                            placeholder="Enter bet"
-                            className="text-input"
-                            value={`${sliderValue}`}
-                            readOnly
-                        />
-                        <input
-                            type="range"
-                            min="100"
-                            max={userBal}
-                            value={sliderValue}
-                            className="slider-input"
-                            onChange={handleSliderChange}
-                        />
-                    </div>
+                <div className="slider-container">
+                    <input
+                        type="text"
+                        placeholder="Enter bet"
+                        className="text-input"
+                        value={`${sliderValue}`}
+                        readOnly
+                    />
+                    <input
+                        type="range"
+                        min="100"
+                        max={userBal}
+                        value={sliderValue}
+                        className="slider-input"
+                        onChange={handleSliderChange}
+                    />
+                </div>
                 <div className="buttons-container">
                     <button className="check-fold-button" onClick={handleCheckButtonClick}>Check </button>
                     <button className="bet-button" onClick={handleBetButtonClick}>Bet {sliderValue}</button>
