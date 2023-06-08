@@ -11,6 +11,38 @@ const Game = () => {
     const prevButtonMessageRef = useRef('');
     const [userBal, setUserBal] = useState(10000);
     const [AIBal, setAIBal] = useState(10000);
+    const [userHand, setUserHand] = useState([]);
+    const [AIHand, setAIHand] = useState([]);
+    const [board, setBoard] = useState([]);
+
+    const createDeck = () => {
+        const suits = ['c', 'd', 'h', 's'];
+        const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'];
+        const deck = [];
+        suits.forEach((suit) => {
+            ranks.forEach((rank) => {
+                const card = rank + suit;
+                deck.push(card);
+            });
+        });
+        return deck;
+    };
+
+    const shuffleDeck = (deck) => {
+        const shuffledDeck = [...deck];
+        for (let i = shuffledDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]];
+        }
+        return shuffledDeck;
+    };
+
+    const dealCards = () => {
+        const shuffledDeck = shuffleDeck(createDeck());
+        setUserHand(shuffledDeck.slice(0, 2));
+        setAIHand(shuffledDeck.slice(2, 4));
+        setBoard(shuffledDeck.slice(4, 9));
+    };
 
     const handleSliderChange = (event) => {
         setSliderValue(event.target.value);
@@ -29,6 +61,10 @@ const Game = () => {
     useEffect(() => {
         prevButtonMessageRef.current = buttonMessage;
     }, [buttonMessage]);
+
+    useEffect(() => {
+        dealCards();
+      }, []);
 
     const CardImage = ({ cardName }) => {
         const imagePath = getCardImage(cardName);
@@ -49,8 +85,8 @@ const Game = () => {
                 </div>
             </div>
             <div className="top-middle">
-                <CardImage cardName="back" />
-                <CardImage cardName="back" />
+                <CardImage cardName={AIHand[0]} />
+                <CardImage cardName={AIHand[1]} />
             </div>
             <div className="middle-middle">
                 <CardImage cardName="10h" />
@@ -63,8 +99,8 @@ const Game = () => {
                 <CardImage cardName="back" />
             </div>
             <div className="bottom-middle">
-                <CardImage cardName="as" />
-                <CardImage cardName="ks" />
+                <CardImage cardName={userHand[0]} />
+                <CardImage cardName={userHand[1]} />
             </div>
             <div className="bottom-left">You: {userBal.toLocaleString()}</div>
             <div className="bottom-right">
