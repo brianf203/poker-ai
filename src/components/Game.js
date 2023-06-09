@@ -6,14 +6,18 @@ import { getCardImage } from './Cards';
 const Game = () => {
 
     const [sliderValue, setSliderValue] = useState(100);
-    const [buttonMessage, setButtonMessage] = useState('');
+    const [logValue, setLogValue] = useState('');
     const [currentPot, setCurrentPot] = useState(0);
-    const prevButtonMessageRef = useRef('');
+    const prevlogValueRef = useRef('');
     const [userBal, setUserBal] = useState(10000);
     const [AIBal, setAIBal] = useState(10000);
     const [userHand, setUserHand] = useState([]);
     const [AIHand, setAIHand] = useState([]);
     const [board, setBoard] = useState([]);
+    const [showAICards, setShowAICards] = useState(false);
+    const [showFlop, setShowFlop] = useState(false);
+    const [showFlip, setShowFlip] = useState(false);
+    const [showRiver, setShowRiver] = useState(false);
 
     const createDeck = () => {
         const suits = ['c', 'd', 'h', 's'];
@@ -45,26 +49,44 @@ const Game = () => {
     };
 
     const handleSliderChange = (event) => {
-        setSliderValue(event.target.value);
-    };
+        const newValue = Math.round(event.target.value / 50) * 50;
+        setSliderValue(newValue);
+      };      
 
     const handleCheckButtonClick = () => {
-        setButtonMessage('You checked');
+        setLogValue((prevLogValue) => prevLogValue + '\nYou checked');
     };
 
     const handleBetButtonClick = () => {
-        setButtonMessage(`You bet ${sliderValue}`);
+        setLogValue((prevLogValue) => prevLogValue + `\nYou bet ${sliderValue}`);
         setCurrentPot((currentPot) => currentPot + parseInt(sliderValue));
         setUserBal((userBal) => userBal - parseInt(sliderValue));
     };
 
-    useEffect(() => {
-        prevButtonMessageRef.current = buttonMessage;
-    }, [buttonMessage]);
+    const textareaRef = useRef(null);
 
     useEffect(() => {
+        textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
+    }, [logValue]);
+
+    useEffect(() => {
+        prevlogValueRef.current = logValue;
+    }, [logValue]);
+
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
         dealCards();
-      }, []);
+        setCurrentPot(150);
+        setLogValue((prevLogValue) => prevLogValue + 'AI bet 100\nYou bet 50');
+        setAIBal((AIBal) => AIBal - 100);
+        setUserBal((userBal) => userBal - 50);
+        setShowFlop(true);
+    }, []);
 
     const CardImage = ({ cardName }) => {
         const imagePath = getCardImage(cardName);
@@ -73,11 +95,19 @@ const Game = () => {
         ) : null;
     };
 
+    const toggleFlop = () => {
+        setShowFlop(!showFlop);
+    };
+
+    const toggleAICards = () => {
+        setShowAICards(!showAICards);
+    };
+
     return (
         <div className="game-container">
             <div className="top-left">Brian's AI: {AIBal.toLocaleString()}</div>
             <div className="top-right">
-                {buttonMessage}
+                <textarea ref={textareaRef} className="text-area" value={logValue} readOnly></textarea>
             </div>
             <div className="middle-right">
                 <div className="current-pot">
@@ -85,15 +115,22 @@ const Game = () => {
                 </div>
             </div>
             <div className="top-middle">
-                <CardImage cardName={AIHand[0]} />
-                <CardImage cardName={AIHand[1]} />
+                {showAICards ? (
+                    <>
+                        <CardImage cardName={AIHand[0]} />
+                        <CardImage cardName={AIHand[1]} />
+                    </>
+                ) : (
+                    <>
+                        <CardImage cardName="back" />
+                        <CardImage cardName="back" />
+                    </>
+                )}
             </div>
             <div className="middle-middle">
-                <CardImage cardName="10h" />
-                <CardImage cardName="kd" />
-                <CardImage cardName="ac" />
-                <CardImage cardName="back" />
-                <CardImage cardName="back" />
+                {board.map((card, index) => (
+                    <CardImage key={index} cardName={showFlop ? card : 'back'} />
+                ))}
             </div>
             <div className="left-middle">
                 <CardImage cardName="back" />
@@ -114,7 +151,7 @@ const Game = () => {
                     />
                     <input
                         type="range"
-                        min="100"
+                        min="50"
                         max={userBal}
                         value={sliderValue}
                         className="slider-input"

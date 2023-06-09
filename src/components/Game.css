@@ -103,9 +103,9 @@ button {
     font-weight: 400;
     font-size: 30px;
     color: black;
-  }
-  
-  .bottom-left {
+}
+
+.bottom-left {
     grid-area: 3 / 1;
     display: flex;
     justify-content: center;
@@ -114,9 +114,9 @@ button {
     font-weight: 400;
     font-size: 30px;
     color: black;
-  }  
+}
 
-  .top-right {
+.top-right {
     grid-area: 1 / 3;
     display: flex;
     justify-content: center;
@@ -126,9 +126,9 @@ button {
     font-size: 30px;
     color: black;
     margin-left: 4rem;
-  }
+}
 
-  .middle-right {
+.middle-right {
     grid-area: 2 / 3;
     display: flex;
     justify-content: center;
@@ -138,4 +138,14 @@ button {
     font-size: 30px;
     color: black;
     margin-left: 4rem;
-  }
+}
+
+.text-area {
+    resize: none;
+    width: 15rem;
+    height: 10rem;
+    font-family: 'Nunito', Arial, sans-serif;
+    font-size: 16px;
+    color: black;
+    margin-left: 3.5rem;
+}
