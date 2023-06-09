@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Game.css';
 import { getCardImage } from './Cards';
-
+import makeDecision from './AI';
 
 const Game = () => {
 
@@ -11,12 +11,14 @@ const Game = () => {
     const prevlogValueRef = useRef('');
     const [userBal, setUserBal] = useState(10000);
     const [AIBal, setAIBal] = useState(10000);
+    const [userPot, setUserPot] = useState(0);
+    const [AIPot, setAIPot] = useState(0);
     const [userHand, setUserHand] = useState([]);
     const [AIHand, setAIHand] = useState([]);
     const [board, setBoard] = useState([]);
     const [showAICards, setShowAICards] = useState(false);
     const [showFlop, setShowFlop] = useState(false);
-    const [showFlip, setShowFlip] = useState(false);
+    const [showTurn, setShowTurn] = useState(false);
     const [showRiver, setShowRiver] = useState(false);
 
     const createDeck = () => {
@@ -51,16 +53,47 @@ const Game = () => {
     const handleSliderChange = (event) => {
         const newValue = Math.round(event.target.value / 50) * 50;
         setSliderValue(newValue);
-      };      
+    };
 
     const handleCheckButtonClick = () => {
         setLogValue((prevLogValue) => prevLogValue + '\nYou checked');
+        const aiDecision = makeDecision(userBal, AIBal, AIHand, 0, currentPot, board);
+        setLogValue((prevLogValue) => prevLogValue + `\nAI decided ${aiDecision}`);
     };
 
     const handleBetButtonClick = () => {
         setLogValue((prevLogValue) => prevLogValue + `\nYou bet ${sliderValue}`);
+        setUserPot((userPot) => userPot + parseInt(sliderValue));
         setCurrentPot((currentPot) => currentPot + parseInt(sliderValue));
         setUserBal((userBal) => userBal - parseInt(sliderValue));
+        if (userPot + parseInt(sliderValue) == AIPot) {
+            setShowFlop(true);
+        }
+        else {
+            const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue, currentPot, board);
+            if (aiDecision === 'fold') {
+                setLogValue((prevLogValue) => prevLogValue + '\nAI folds. You win!');
+            }
+            else if (aiDecision.includes('call')) {
+                const callAmount = parseInt(aiDecision.split(' ')[1]);
+                setCurrentPot((currentPot) => currentPot + callAmount);
+                setAIBal((AIBal) => AIBal - callAmount);
+                setLogValue((prevLogValue) => prevLogValue + `\nAI calls ${callAmount}`);
+                setShowFlop(true);
+            }
+            else if (aiDecision.includes('raise')) {
+                const raiseAmount = parseInt(aiDecision.split(' ')[1]);
+                setCurrentPot((currentPot) => currentPot + raiseAmount);
+                setAIBal((AIBal) => AIBal - raiseAmount);
+                setLogValue((prevLogValue) => prevLogValue + `\nAI raises ${raiseAmount}`);
+                setShowFlop(true);
+            }
+            else if (aiDecision === 'all in') {
+                setCurrentPot((currentPot) => currentPot + AIBal);
+                setAIBal(0);
+                setLogValue((prevLogValue) => prevLogValue + '\nAI goes all in');
+            }
+        }
     };
 
     const textareaRef = useRef(null);
@@ -85,7 +118,8 @@ const Game = () => {
         setLogValue((prevLogValue) => prevLogValue + 'AI bet 100\nYou bet 50');
         setAIBal((AIBal) => AIBal - 100);
         setUserBal((userBal) => userBal - 50);
-        setShowFlop(true);
+        setAIPot(100);
+        setUserPot(50);
     }, []);
 
     const CardImage = ({ cardName }) => {
@@ -128,9 +162,15 @@ const Game = () => {
                 )}
             </div>
             <div className="middle-middle">
-                {board.map((card, index) => (
+                {board.slice(0, 3).map((card, index) => (
                     <CardImage key={index} cardName={showFlop ? card : 'back'} />
                 ))}
+                {board.length >= 4 && (
+                    <CardImage key={3} cardName={showTurn ? board[3] : 'back'} />
+                )}
+                {board.length === 5 && (
+                    <CardImage key={4} cardName={showRiver ? board[4] : 'back'} />
+                )}
             </div>
             <div className="left-middle">
                 <CardImage cardName="back" />
