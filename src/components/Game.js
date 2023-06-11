@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import './Game.css';
 import { getCardImage } from './Cards';
 import makeDecision from './AI';
+import checkWin from './Win';
 
 const Game = () => {
 
@@ -75,7 +76,16 @@ const Game = () => {
                 setPhase(4);
             }
             if (phase == 4) {
-                /* check win */
+                const winner = checkWin(board, AIHand, userHand);
+                if (winner == 'AI') {
+                    setLogValue((prevLogValue) => prevLogValue + '\nAI wins');
+                }
+                else if (winner == 'user') {
+                    setLogValue((prevLogValue) => prevLogValue + '\nUser wins');
+                }
+                else {
+                    setLogValue((prevLogValue) => prevLogValue + '\nDraw');
+                }
             }
         }
 
@@ -145,7 +155,16 @@ const Game = () => {
                 setLogValue((prevLogValue) => prevLogValue + `\nAI decided ${aiDecision}`);
                 if (aiDecision === 'fold') {
                     setLogValue((prevLogValue) => prevLogValue + '\nAI checks back');
-                    /* check win */
+                    const winner = checkWin(board, AIHand, userHand);
+                    if (winner == 'AI') {
+                        setLogValue((prevLogValue) => prevLogValue + '\nAI wins');
+                    }
+                    else if (winner == 'user') {
+                        setLogValue((prevLogValue) => prevLogValue + '\nUser wins');
+                    }
+                    else {
+                        setLogValue((prevLogValue) => prevLogValue + '\nDraw');
+                    }
                 }
                 else if (aiDecision.includes('bet')) {
                     const betAmount = parseInt(aiDecision.split(' ')[1]);
