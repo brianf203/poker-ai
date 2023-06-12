@@ -26,7 +26,7 @@ const Game = () => {
 
     const createDeck = () => {
         const suits = ['c', 'd', 'h', 's'];
-        const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'];
+        const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', 't', 'j', 'q', 'k', 'a'];
         const deck = [];
         suits.forEach((suit) => {
             ranks.forEach((rank) => {
