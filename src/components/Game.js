@@ -17,7 +17,7 @@ const Game = () => {
     const [userHand, setUserHand] = useState([]);
     const [AIHand, setAIHand] = useState([]);
     const [board, setBoard] = useState([]);
-    const [showAICards, setShowAICards] = useState(false);
+    const [showAICards, setShowAICards] = useState(true);
     const [showFlop, setShowFlop] = useState(false);
     const [showTurn, setShowTurn] = useState(false);
     const [showRiver, setShowRiver] = useState(false);
@@ -77,14 +77,14 @@ const Game = () => {
             }
             if (phase == 4) {
                 const winner = checkWin(board, AIHand, userHand);
-                if (winner == 'AI') {
-                    setLogValue((prevLogValue) => prevLogValue + '\nAI wins');
+                if (winner.includes("AI")) {
+                    setLogValue((prevLogValue) => prevLogValue + '\n' + winner);
                 }
-                else if (winner == 'user') {
-                    setLogValue((prevLogValue) => prevLogValue + '\nUser wins');
+                else if (winner.includes("You")) {
+                    setLogValue((prevLogValue) => prevLogValue + '\n' + winner);
                 }
                 else {
-                    setLogValue((prevLogValue) => prevLogValue + '\nDraw');
+                    setLogValue((prevLogValue) => prevLogValue + '\n' + winner);
                 }
             }
         }
