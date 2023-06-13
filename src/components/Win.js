@@ -4,21 +4,21 @@ const checkWin = (board, AIHand, userHand) => {
     const AIRank = getHandRank(AICards);
     const userRank = getHandRank(userCards);
     if (AIRank[0] > userRank[0]) {
-        return "AI wins with a " + AIRank[1] + ", you had a " + userRank[1];
+        return "AI wins with a " + AIRank[1] + " " + AIRank[2][0] + " high, you had a " + userRank[1] + " " + userRank[2][0];
     }
     else if (AIRank[0] < userRank[0]) {
-        return "You won with a " + userRank[1] + ", AI had a " + AIRank[1];
+        return "You won with a " + userRank[1] + " " + userRank[2][0] + " high, AI had a " + AIRank[1] + " " + AIRank[2][0];
     }
     else {
         for (let i = 0; i < AIRank[2].length; i++) {
             if (AIRank[2][i] > userRank[2][i]) {
-                return "AI wins with a " + AIRank[1] + ", you tied with a " + userRank[1];
+                return "AI wins with a " + AIRank[1] + " " + AIRank[2][i] + " high, you tied with a " + userRank[1] + " " + userRank[2][i];
             }
             else if (AIRank[2][i] < userRank[2][i]) {
-                return "You won with a " + userRank[1] + ", AI tied with a " + AIRank[1];
+                return "You won with a " + userRank[1] + " " + userRank[2][i] + " high, AI tied with a " + AIRank[1] + " " + AIRank[2][i];
             }
         }
-        return "Draw, AI had " + AIRank[1] + ", you had " + userRank[1];
+        return "Draw, AI had " + AIRank[1] + " " + AIRank[2][0] + "high, you had " + userRank[1] + " " + userRank[2][0];
     }
 };
 
@@ -26,43 +26,43 @@ const getHandRank = (cards) => {
     cards.sort((a, b) => rankToValue(b.charAt(0)) - rankToValue(a.charAt(0)));
     if (hasRoyalFlush(cards)[0]) {
         const royalFlushRank = hasRoyalFlush(cards)[1];
-        return [10, "Royal Flush", royalFlushRank];
+        return [10, "Royal Flush", [royalFlushRank]];
     }
     else if (hasStraightFlush(cards)[0]) {
         const straightFlushRank = hasStraightFlush(cards)[1];
-        return [9, "Straight Flush", straightFlushRank];
+        return [9, "Straight Flush", [straightFlushRank]];
     }
     else if (hasFourOfAKind(cards)[0]) {
         const fourOfAKindRank = hasFourOfAKind(cards)[1];
-        return [8, "Four of a Kind", fourOfAKindRank];
+        return [8, "Four of a Kind", [fourOfAKindRank]];
     }
     else if (hasFullHouse(cards)[0]) {
-        const fullHouseRanks = hasFullHouse(cards).slice(1);
-        return [7, "Full House", ...fullHouseRanks];
+        const fullHouseRanks = hasFullHouse(cards)[1];
+        return [7, "Full House", [fullHouseRanks]];
     }
     else if (hasFlush(cards)[0]) {
-        const flushRanks = hasFlush(cards).slice(1);
-        return [6, "Flush", ...flushRanks];
+        const flushRanks = hasFlush(cards)[1];
+        return [6, "Flush", [flushRanks]];
     }
     else if (hasStraight(cards)[0]) {
         const straightRank = hasStraight(cards)[1];
-        return [5, "Straight", straightRank];
+        return [5, "Straight", [straightRank]];
     }
     else if (hasThreeOfAKind(cards)[0]) {
         const threeOfAKindRank = hasThreeOfAKind(cards)[1];
-        return [4, "Three of a Kind", threeOfAKindRank];
+        return [4, "Three of a Kind", [threeOfAKindRank]];
     }
     else if (hasTwoPair(cards)[0]) {
-        const twoPairRanks = hasTwoPair(cards).slice(1);
-        return [3, "Two Pair", ...twoPairRanks];
+        const twoPairRanks = hasTwoPair(cards)[1];
+        return [3, "Two Pair", [twoPairRanks]];
     }
     else if (hasPair(cards)[0]) {
         const pairRank = hasPair(cards)[1];
-        return [2, "Pair", pairRank];
+        return [2, "Pair", [pairRank]];
     }
     else {
         const highCardRanks = cards.slice(0, 5).map(card => rankToValue(card.charAt(0)));
-        return [1, "High Card", ...highCardRanks];
+        return [1, "High Card", [cards[0].charAt(0)]];
     }
 };
 
@@ -99,16 +99,16 @@ const hasFullHouse = (cards) => {
         const sortedTripletRanks = tripletRanks.sort((a, b) => rankToValue(b) - rankToValue(a));
         const highestTripletRank = sortedTripletRanks[0];
         const secondTripletRank = sortedTripletRanks[1];
-        return [true, rankToValue(highestTripletRank), rankToValue(secondTripletRank)];
+        return [true, [rankToValue(highestTripletRank), rankToValue(secondTripletRank)]];
     }
     const hasThreeOfAKind = Object.values(ranks).includes(3);
     const hasPair = Object.values(ranks).includes(2);
     if (hasThreeOfAKind && hasPair) {
         const threeRank = Object.keys(ranks).find(rank => ranks[rank] === 3);
         const pairRank = Object.keys(ranks).find(rank => ranks[rank] === 2);
-        return [true, rankToValue(threeRank), rankToValue(pairRank)];
+        return [true, [rankToValue(threeRank), rankToValue(pairRank)]];
     }
-    return [false, 0, 0];
+    return [false, [0, 0]];
 };
 
 const hasFlush = (cards) => {
@@ -118,9 +118,9 @@ const hasFlush = (cards) => {
         const flushCards = cards.filter(card => card.charAt(1) === flushSuit);
         flushCards.sort((a, b) => rankToValue(b.charAt(0)) - rankToValue(a.charAt(0)));
         const highestFlushCards = flushCards.slice(0, 5);
-        return [true, ...highestFlushCards.map(card => rankToValue(card.charAt(0)))];
+        return [true, [...highestFlushCards.map(card => rankToValue(card.charAt(0)))]];
     }
-    return [false, 0, 0, 0, 0, 0];
+    return [false, [0, 0, 0, 0, 0]];
 };
 
 const hasStraight = (cards) => {
@@ -156,13 +156,14 @@ const hasThreeOfAKind = (cards) => {
     return [hasThreeOfAKind, tripletRank];
 };
 
+// fix case where there are 3 2 pairs
 const hasTwoPair = (cards) => {
     const ranks = getRanks(cards);
     const pairs = Object.entries(ranks).filter(([rank, count]) => count === 2);
     const hasTwoPair = pairs.length === 2;
     const pairRanks = hasTwoPair ? pairs.map(([rank]) => rankToValue(rank)) : [0, 0];
     const [firstPairRank, secondPairRank] = pairRanks.sort((a, b) => b - a);
-    return [hasTwoPair, firstPairRank, secondPairRank];
+    return [hasTwoPair, [firstPairRank, secondPairRank]];
 };
 
 const hasPair = (cards) => {
