@@ -164,22 +164,46 @@ const Game = () => {
 
     const handleBetButtonClick = () => {
 
-        // AI going first
-        if (turn == 0) {
-            // AI previously checked
-            // AI previously bet
-            // calling AI bet
-            // raising AI bet
+        // user matches AI bet
+        if (sliderValue + userPot == AIPot) {
+            setLogValue((prevLogValue) => prevLogValue + `\nYou called ${sliderValue}`);
+            setCurrentPot((currentPot) => currentPot + sliderValue);
+            setUserBal((userBal) => userBal - sliderValue);
+            setUserPot((userPot) => userPot + sliderValue);
+            if (phase == 1) {
+                setShowFlop(true);
+                setPhase(2);
+            }
+            else if (phase == 2) {
+                setShowTurn(true);
+                setPhase(3);
+            }
+            else if (phase == 3) {
+                setShowRiver(true);
+                setPhase(4);
+            }
+            else {
+                const winner = checkWin(board, AIHand, userHand);
+                if (winner.includes("AI")) {
+                    setLogValue((prevLogValue) => prevLogValue + '\n' + winner);
+                }
+                else if (winner.includes("You")) {
+                    setLogValue((prevLogValue) => prevLogValue + '\n' + winner);
+                }
+                else {
+                    setLogValue((prevLogValue) => prevLogValue + '\n' + winner);
+                }
+            }
         }
 
-        // user going first
+        // user raise / re-raise, AI re-raising doesn't work right now
         else {
             setLogValue((prevLogValue) => prevLogValue + `\nYou bet ${sliderValue}`);
             setCurrentPot((currentPot) => currentPot + sliderValue);
             setUserBal((userBal) => userBal - sliderValue);
             setUserPot((userPot) => userPot + sliderValue);
             if (phase == 1) {
-                const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue, currentPot, board, false);
+                const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue + userPot - AIPot, currentPot, board, false);
                 if (aiDecision === 'fold') {
                     setLogValue((prevLogValue) => prevLogValue + '\nAI folds. You win!');
                 }
@@ -201,7 +225,7 @@ const Game = () => {
                 }
             }
             else if (phase == 2) {
-                const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue, currentPot, board, false);
+                const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue + userPot - AIPot, currentPot, board, false);
                 if (aiDecision === 'fold') {
                     setLogValue((prevLogValue) => prevLogValue + '\nAI folds. You win!');
                 }
@@ -223,7 +247,7 @@ const Game = () => {
                 }
             }
             else if (phase == 3) {
-                const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue, currentPot, board, false);
+                const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue + userPot - AIPot, currentPot, board, false);
                 if (aiDecision === 'fold') {
                     setLogValue((prevLogValue) => prevLogValue + '\nAI folds. You win!');
                 }
@@ -245,7 +269,7 @@ const Game = () => {
                 }
             }
             else if (phase == 4) {
-                const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue, currentPot, board, false);
+                const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue + userPot - AIPot, currentPot, board, false);
                 if (aiDecision === 'fold') {
                     setLogValue((prevLogValue) => prevLogValue + '\nAI folds. You win!');
                 }
@@ -309,14 +333,6 @@ const Game = () => {
         return imagePath ? (
             <img src={imagePath} alt={`Image ${cardName}`} style={{ width: '25%', height: 'auto' }} />
         ) : null;
-    };
-
-    const toggleFlop = () => {
-        setShowFlop(!showFlop);
-    };
-
-    const toggleAICards = () => {
-        setShowAICards(!showAICards);
     };
 
     return (
