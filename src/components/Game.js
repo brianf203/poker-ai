@@ -60,8 +60,6 @@ const Game = () => {
 
     const handleCheckButtonClick = () => {
         setLogValue((prevLogValue) => prevLogValue + '\nYou checked');
-
-        /* if AI going first */
         if (turn == 0) {
             if (phase == 1) {
                 setShowFlop(true);
@@ -88,42 +86,27 @@ const Game = () => {
                 }
             }
         }
-
-        /* if user going first */
         else {
             if (phase === 1) {
-                const aiDecision = makeDecision(userBal, AIBal, AIHand, 0, currentPot, board);
+                const aiDecision = makeDecision(userBal, AIBal, AIHand, 0, currentPot, board, true);
                 setLogValue((prevLogValue) => prevLogValue + `\nAI decided ${aiDecision}`);
-
-                /* change later, this means check */
-                if (aiDecision === 'fold') {
+                if (aiDecision === 'check') {
                     setLogValue((prevLogValue) => prevLogValue + '\nAI checks back');
                     setShowFlop(true);
                     setPhase(2);
                 }
-
-                /* change later, delete all */
-                else if (aiDecision.includes('call')) {
-                    const callAmount = parseInt(aiDecision.split(' ')[1]);
-                    setCurrentPot((currentPot) => currentPot + callAmount);
-                    setAIBal((AIBal) => AIBal - callAmount);
-                    setLogValue((prevLogValue) => prevLogValue + `\nAI calls ${callAmount}`);
-                }
-
-                /* later add the raise amount to AIPot, user's bet has to match or double this */
-                else if (aiDecision.includes('raise')) {
-                    const raiseAmount = parseInt(aiDecision.split(' ')[1]);
-                    setCurrentPot((currentPot) => currentPot + raiseAmount);
-                    setAIBal((AIBal) => AIBal - raiseAmount);
-                    setLogValue((prevLogValue) => prevLogValue + `\nAI raises to ${raiseAmount}`);
+                else if (aiDecision.includes('bet')) {
+                    const betAmount = parseInt(aiDecision.split(' ')[1]);
+                    setCurrentPot((currentPot) => currentPot + betAmount);
+                    setAIBal((AIBal) => AIBal - betAmount);
+                    setLogValue((prevLogValue) => prevLogValue + `\nAI raises to ${betAmount}`);
+                    setAIPot((AIPot) => AIPot + betAmount);
                 }
             }
             else if (phase === 2) {
-                const aiDecision = makeDecision(userBal, AIBal, AIHand, userPot, currentPot, board);
+                const aiDecision = makeDecision(userBal, AIBal, AIHand, userPot, currentPot, board, true);
                 setLogValue((prevLogValue) => prevLogValue + `\nAI decided ${aiDecision}`);
-
-                /* AI checks back, show turn */
-                if (aiDecision === 'fold') {
+                if (aiDecision === 'check') {
                     setLogValue((prevLogValue) => prevLogValue + '\nAI checks back');
                     setShowTurn(true);
                     setPhase(3);
@@ -133,12 +116,13 @@ const Game = () => {
                     setCurrentPot((currentPot) => currentPot + betAmount);
                     setAIBal((AIBal) => AIBal - betAmount);
                     setLogValue((prevLogValue) => prevLogValue + `\nAI bets ${betAmount}`);
+                    setAIPot((AIPot) => AIPot + betAmount);
                 }
             }
             else if (phase === 3) {
-                const aiDecision = makeDecision(userBal, AIBal, AIHand, userPot, currentPot, board);
+                const aiDecision = makeDecision(userBal, AIBal, AIHand, userPot, currentPot, board, true);
                 setLogValue((prevLogValue) => prevLogValue + `\nAI decided ${aiDecision}`);
-                if (aiDecision === 'fold') {
+                if (aiDecision === 'check') {
                     setLogValue((prevLogValue) => prevLogValue + '\nAI checks back');
                     setShowRiver(true);
                     setPhase(4);
@@ -148,12 +132,13 @@ const Game = () => {
                     setCurrentPot((currentPot) => currentPot + betAmount);
                     setAIBal((AIBal) => AIBal - betAmount);
                     setLogValue((prevLogValue) => prevLogValue + `\nAI bets ${betAmount}`);
+                    setAIPot((AIPot) => AIPot + betAmount);
                 }
             }
             else if (phase === 4) {
-                const aiDecision = makeDecision(userBal, AIBal, AIHand, userPot, currentPot, board);
+                const aiDecision = makeDecision(userBal, AIBal, AIHand, userPot, currentPot, board, true);
                 setLogValue((prevLogValue) => prevLogValue + `\nAI decided ${aiDecision}`);
-                if (aiDecision === 'fold') {
+                if (aiDecision === 'check') {
                     setLogValue((prevLogValue) => prevLogValue + '\nAI checks back');
                     const winner = checkWin(board, AIHand, userHand);
                     if (winner == 'AI') {
@@ -171,22 +156,22 @@ const Game = () => {
                     setCurrentPot((currentPot) => currentPot + betAmount);
                     setAIBal((AIBal) => AIBal - betAmount);
                     setLogValue((prevLogValue) => prevLogValue + `\nAI bets ${betAmount}`);
+                    setAIPot((AIPot) => AIPot + betAmount);
                 }
             }
         }
-
     };
 
     const handleBetButtonClick = () => {
         setLogValue((prevLogValue) => prevLogValue + `\nYou bet ${sliderValue}`);
-        setUserPot((userPot) => userPot + parseInt(sliderValue));
-        setCurrentPot((currentPot) => currentPot + parseInt(sliderValue));
-        setUserBal((userBal) => userBal - parseInt(sliderValue));
-        if (userPot + parseInt(sliderValue) == AIPot) {
+        setUserPot((userPot) => userPot + sliderValue);
+        setCurrentPot((currentPot) => currentPot + sliderValue);
+        setUserBal((userBal) => userBal - sliderValue);
+        if (userPot + sliderValue == AIPot) {
             setShowFlop(true);
         }
         else {
-            const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue, currentPot, board);
+            const aiDecision = makeDecision(userBal, AIBal, AIHand, sliderValue, currentPot, board, false);
             if (aiDecision === 'fold') {
                 setLogValue((prevLogValue) => prevLogValue + '\nAI folds. You win!');
             }

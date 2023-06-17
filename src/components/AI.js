@@ -1,19 +1,31 @@
-const makeDecision = (userBal, AIBal, cards, bet, pot, board) => {
+const makeDecision = (userBal, AIBal, cards, bet, pot, board, dec) => {
 
-    const decision = Math.random();
-    if (decision < 0.1) {
-        return "fold";
+    // user check
+    if (dec) {
+        const decision = Math.random();
+        if(decision < 0.5) {
+            return "check";
+        }
+        else {
+            return "bet 100";
+        }
     }
-    else if (decision < 0.5) {
-        return `call ${bet}`;
-    }
-    else if (decision < 0.9) {
-        const raiseAmount = bet * 2;
-        return `raise ${raiseAmount}`;
-    }
+
+    // user bets
     else {
-        return "all in";
+        const decision = Math.random();
+        if (decision < 0.1) {
+            return "fold";
+        }
+        else if (decision < 0.7) {
+            return `call ${bet}`;
+        }
+        else {
+            const raiseAmount = bet * 2;
+            return `raise ${raiseAmount}`;
+        }
     }
+
 };
 
 export default makeDecision;
