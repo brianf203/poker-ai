@@ -163,8 +163,6 @@ const Game = () => {
     };
 
     const handleBetButtonClick = () => {
-
-        // user matches AI bet
         if (sliderValue + userPot == AIPot) {
             setLogValue((prevLogValue) => prevLogValue + `\nYou called ${sliderValue}`);
             setCurrentPot((currentPot) => currentPot + sliderValue);
@@ -195,8 +193,6 @@ const Game = () => {
                 }
             }
         }
-
-        // user raise / re-raise, AI re-raising doesn't work right now
         else {
             setLogValue((prevLogValue) => prevLogValue + `\nYou bet ${sliderValue}`);
             setCurrentPot((currentPot) => currentPot + sliderValue);
