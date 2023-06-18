@@ -38,11 +38,11 @@ const getHandRank = (cards) => {
     }
     else if (hasFullHouse(cards)[0]) {
         const fullHouseRanks = hasFullHouse(cards)[1];
-        return [7, "Full House", [fullHouseRanks]];
+        return [7, "Full House", fullHouseRanks];
     }
     else if (hasFlush(cards)[0]) {
         const flushRanks = hasFlush(cards)[1];
-        return [6, "Flush", [flushRanks]];
+        return [6, "Flush", flushRanks];
     }
     else if (hasStraight(cards)[0]) {
         const straightRank = hasStraight(cards)[1];
@@ -54,7 +54,7 @@ const getHandRank = (cards) => {
     }
     else if (hasTwoPair(cards)[0]) {
         const twoPairRanks = hasTwoPair(cards)[1];
-        return [3, "Two Pair", [twoPairRanks]];
+        return [3, "Two Pair", twoPairRanks];
     }
     else if (hasPair(cards)[0]) {
         const pairRank = hasPair(cards)[1];
