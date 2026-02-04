@@ -3,85 +3,166 @@ const checkWin = (board, AIHand, userHand) => {
     const userCards = [...board, ...userHand];
     const AIRank = getHandRank(AICards);
     const userRank = getHandRank(userCards);
+    
     if (AIRank[0] > userRank[0]) {
-        return "AI wins with a " + AIRank[1] + " " + AIRank[2][0] + " high, you had a " + userRank[1] + " " + userRank[2][0];
+        const highCard = valueToRank(AIRank[2][0]);
+        const userHighCard = valueToRank(userRank[2][0]);
+        return `AI wins with a ${AIRank[1]} (${highCard} high), you had a ${userRank[1]} (${userHighCard} high)`;
     }
     else if (AIRank[0] < userRank[0]) {
-        return "You won with a " + userRank[1] + " " + userRank[2][0] + " high, AI had a " + AIRank[1] + " " + AIRank[2][0];
+        const highCard = valueToRank(userRank[2][0]);
+        const aiHighCard = valueToRank(AIRank[2][0]);
+        return `You won with a ${userRank[1]} (${highCard} high), AI had a ${AIRank[1]} (${aiHighCard} high)`;
     }
     else {
-        for (let i = 0; i < AIRank[2].length; i++) {
-            if (AIRank[2][i] > userRank[2][i]) {
-                return "AI wins with a " + AIRank[1] + " " + AIRank[2][i] + " high, you tied with a " + userRank[1] + " " + userRank[2][i];
+        for (let i = 0; i < Math.max(AIRank[2].length, userRank[2].length); i++) {
+            const aiValue = AIRank[2][i] || 0;
+            const userValue = userRank[2][i] || 0;
+            if (aiValue > userValue) {
+                const highCard = valueToRank(aiValue);
+                return `AI wins with a ${AIRank[1]} (${highCard} high), you tied with a ${userRank[1]}`;
             }
-            else if (AIRank[2][i] < userRank[2][i]) {
-                return "You won with a " + userRank[1] + " " + userRank[2][i] + " high, AI tied with a " + AIRank[1] + " " + AIRank[2][i];
+            else if (aiValue < userValue) {
+                const highCard = valueToRank(userValue);
+                return `You won with a ${userRank[1]} (${highCard} high), AI tied with a ${AIRank[1]}`;
             }
         }
-        return "Draw, AI had " + AIRank[1] + " " + AIRank[2][0] + "high, you had " + userRank[1] + " " + userRank[2][0];
+        return `Draw! Both players have ${AIRank[1]}`;
     }
 };
 
+const valueToRank = (value) => {
+    const ranks = { 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'Jack', 12: 'Queen', 13: 'King', 14: 'Ace' };
+    return ranks[value] || value;
+};
+
 const getHandRank = (cards) => {
-    cards.sort((a, b) => rankToValue(b.charAt(0)) - rankToValue(a.charAt(0)));
-    if (hasRoyalFlush(cards)[0]) {
-        const royalFlushRank = hasRoyalFlush(cards)[1];
-        return [10, "Royal Flush", [royalFlushRank]];
+    // Safety check
+    if (!cards || !Array.isArray(cards) || cards.length < 5) {
+        return [0, "Invalid Hand", [0]];
     }
-    else if (hasStraightFlush(cards)[0]) {
-        const straightFlushRank = hasStraightFlush(cards)[1];
+    
+    // Get all possible 5-card combinations from 7 cards
+    const combinations = getCombinations(cards, 5);
+    let bestRank = [0, "", [0]];
+    
+    for (const combo of combinations) {
+        const rank = evaluateHand(combo);
+        if (rank[0] > bestRank[0] || (rank[0] === bestRank[0] && compareKickers(rank[2], bestRank[2]) > 0)) {
+            bestRank = rank;
+        }
+    }
+    
+    return bestRank;
+};
+
+const getCombinations = (arr, k) => {
+    if (k === 0) return [[]];
+    if (arr.length === 0) return [];
+    
+    const [first, ...rest] = arr;
+    const withFirst = getCombinations(rest, k - 1).map(combo => [first, ...combo]);
+    const withoutFirst = getCombinations(rest, k);
+    
+    return [...withFirst, ...withoutFirst];
+};
+
+const evaluateHand = (cards) => {
+    const sortedCards = [...cards].sort((a, b) => rankToValue(b.charAt(0)) - rankToValue(a.charAt(0)));
+    
+    if (hasRoyalFlush(sortedCards)) {
+        return [10, "Royal Flush", [14]];
+    }
+    else if (hasStraightFlush(sortedCards)[0]) {
+        const straightFlushRank = hasStraightFlush(sortedCards)[1];
         return [9, "Straight Flush", [straightFlushRank]];
     }
-    else if (hasFourOfAKind(cards)[0]) {
-        const fourOfAKindRank = hasFourOfAKind(cards)[1];
-        return [8, "Four of a Kind", [fourOfAKindRank]];
+    else if (hasFourOfAKind(sortedCards)[0]) {
+        const fourOfAKindRank = hasFourOfAKind(sortedCards)[1];
+        const kicker = sortedCards.find(c => rankToValue(c.charAt(0)) !== fourOfAKindRank);
+        return [8, "Four of a Kind", [fourOfAKindRank, kicker ? rankToValue(kicker.charAt(0)) : 0]];
     }
-    else if (hasFullHouse(cards)[0]) {
-        const fullHouseRanks = hasFullHouse(cards)[1];
+    else if (hasFullHouse(sortedCards)[0]) {
+        const fullHouseRanks = hasFullHouse(sortedCards)[1];
         return [7, "Full House", fullHouseRanks];
     }
-    else if (hasFlush(cards)[0]) {
-        const flushRanks = hasFlush(cards)[1];
+    else if (hasFlush(sortedCards)[0]) {
+        const flushRanks = hasFlush(sortedCards)[1];
         return [6, "Flush", flushRanks];
     }
-    else if (hasStraight(cards)[0]) {
-        const straightRank = hasStraight(cards)[1];
+    else if (hasStraight(sortedCards)[0]) {
+        const straightRank = hasStraight(sortedCards)[1];
         return [5, "Straight", [straightRank]];
     }
-    else if (hasThreeOfAKind(cards)[0]) {
-        const threeOfAKindRank = hasThreeOfAKind(cards)[1];
-        return [4, "Three of a Kind", [threeOfAKindRank]];
+    else if (hasThreeOfAKind(sortedCards)[0]) {
+        const threeOfAKindRank = hasThreeOfAKind(sortedCards)[1];
+        const kickers = sortedCards
+            .filter(c => rankToValue(c.charAt(0)) !== threeOfAKindRank)
+            .slice(0, 2)
+            .map(c => rankToValue(c.charAt(0)));
+        return [4, "Three of a Kind", [threeOfAKindRank, ...kickers]];
     }
-    else if (hasTwoPair(cards)[0]) {
-        const twoPairRanks = hasTwoPair(cards)[1];
-        return [3, "Two Pair", twoPairRanks];
+    else if (hasTwoPair(sortedCards)[0]) {
+        const twoPairRanks = hasTwoPair(sortedCards)[1];
+        const kicker = sortedCards.find(c => 
+            rankToValue(c.charAt(0)) !== twoPairRanks[0] && 
+            rankToValue(c.charAt(0)) !== twoPairRanks[1]
+        );
+        return [3, "Two Pair", [...twoPairRanks, kicker ? rankToValue(kicker.charAt(0)) : 0]];
     }
-    else if (hasPair(cards)[0]) {
-        const pairRank = hasPair(cards)[1];
-        return [2, "Pair", [pairRank]];
+    else if (hasPair(sortedCards)[0]) {
+        const pairRank = hasPair(sortedCards)[1];
+        const kickers = sortedCards
+            .filter(c => rankToValue(c.charAt(0)) !== pairRank)
+            .slice(0, 3)
+            .map(c => rankToValue(c.charAt(0)));
+        return [2, "Pair", [pairRank, ...kickers]];
     }
     else {
-        const highCardRanks = cards.slice(0, 5).map(card => rankToValue(card.charAt(0)));
-        return [1, "High Card", [cards[0].charAt(0)]];
+        const highCardRanks = sortedCards.slice(0, 5).map(card => rankToValue(card.charAt(0)));
+        return [1, "High Card", highCardRanks];
     }
+};
+
+const compareKickers = (kickers1, kickers2) => {
+    for (let i = 0; i < Math.max(kickers1.length, kickers2.length); i++) {
+        const val1 = kickers1[i] || 0;
+        const val2 = kickers2[i] || 0;
+        if (val1 > val2) return 1;
+        if (val1 < val2) return -1;
+    }
+    return 0;
 };
 
 const rankToValue = (rank) => {
     const values = { '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 't': 10, 'j': 11, 'q': 12, 'k': 13, 'a': 14 };
-    return values[rank];
+    return values[rank] || 0;
 };
 
 const hasRoyalFlush = (cards) => {
-    const straightFlushResult = hasStraightFlush(cards);
-    return straightFlushResult[0] && cards.some(card => card.charAt(0) === 'a');
+    const suits = getSuits(cards);
+    for (const suit in suits) {
+        if (suits[suit] >= 5) {
+            const flushCards = cards.filter(card => card.charAt(1) === suit);
+            const ranks = new Set(flushCards.map(c => c.charAt(0).toLowerCase()));
+            if (ranks.has('a') && ranks.has('k') && ranks.has('q') && ranks.has('j') && ranks.has('t')) {
+                return true;
+            }
+        }
+    }
+    return false;
 };
 
 const hasStraightFlush = (cards) => {
-    const flushResult = hasFlush(cards);
-    const straightResult = hasStraight(cards);
-    if (flushResult[0] && straightResult[0]) {
-        const highestStraightRank = flushResult[1];
-        return [true, highestStraightRank];
+    const suits = getSuits(cards);
+    for (const suit in suits) {
+        if (suits[suit] >= 5) {
+            const flushCards = cards.filter(card => card.charAt(1) === suit);
+            const straightResult = hasStraight(flushCards);
+            if (straightResult[0]) {
+                return [true, straightResult[1]];
+            }
+        }
     }
     return [false, 0];
 };
@@ -89,25 +170,24 @@ const hasStraightFlush = (cards) => {
 const hasFourOfAKind = (cards) => {
     const ranks = getRanks(cards);
     const fourOfAKindRank = Object.keys(ranks).find(rank => ranks[rank] === 4);
-    return [!!fourOfAKindRank, rankToValue(fourOfAKindRank)];
+    return [!!fourOfAKindRank, fourOfAKindRank ? rankToValue(fourOfAKindRank) : 0];
 };
 
 const hasFullHouse = (cards) => {
     const ranks = getRanks(cards);
     const tripletRanks = Object.keys(ranks).filter(rank => ranks[rank] === 3);
-    if (tripletRanks.length == 2) {
+    const pairRanks = Object.keys(ranks).filter(rank => ranks[rank] === 2);
+    
+    if (tripletRanks.length >= 2) {
         const sortedTripletRanks = tripletRanks.sort((a, b) => rankToValue(b) - rankToValue(a));
-        const highestTripletRank = sortedTripletRanks[0];
-        const secondTripletRank = sortedTripletRanks[1];
-        return [true, [rankToValue(highestTripletRank), rankToValue(secondTripletRank)]];
+        return [true, [rankToValue(sortedTripletRanks[0]), rankToValue(sortedTripletRanks[1])]];
     }
-    const hasThreeOfAKind = Object.values(ranks).includes(3);
-    const hasPair = Object.values(ranks).includes(2);
-    if (hasThreeOfAKind && hasPair) {
-        const threeRank = Object.keys(ranks).find(rank => ranks[rank] === 3);
-        const pairRank = Object.keys(ranks).find(rank => ranks[rank] === 2);
-        return [true, [rankToValue(threeRank), rankToValue(pairRank)]];
+    
+    if (tripletRanks.length === 1 && pairRanks.length >= 1) {
+        const highestPair = pairRanks.sort((a, b) => rankToValue(b) - rankToValue(a))[0];
+        return [true, [rankToValue(tripletRanks[0]), rankToValue(highestPair)]];
     }
+    
     return [false, [0, 0]];
 };
 
@@ -118,34 +198,41 @@ const hasFlush = (cards) => {
         const flushCards = cards.filter(card => card.charAt(1) === flushSuit);
         flushCards.sort((a, b) => rankToValue(b.charAt(0)) - rankToValue(a.charAt(0)));
         const highestFlushCards = flushCards.slice(0, 5);
-        return [true, [...highestFlushCards.map(card => rankToValue(card.charAt(0)))]];
+        return [true, highestFlushCards.map(card => rankToValue(card.charAt(0)))];
     }
     return [false, [0, 0, 0, 0, 0]];
 };
 
 const hasStraight = (cards) => {
-    const ranks = getRanks(cards);
-    const sortedRanks = Object.keys(ranks).sort((a, b) => rankToValue(b) - rankToValue(a));
-    let consecutiveCount = 0;
-    let highestStraightRank = 0;
-    for (let i = 0; i < sortedRanks.length - 1; i++) {
-        const currentRank = rankToValue(sortedRanks[i]);
-        const nextRank = rankToValue(sortedRanks[i + 1]);
-        if (currentRank - nextRank === 1) {
-            consecutiveCount++;
-            if (consecutiveCount === 4) {
-                highestStraightRank = currentRank + 4;
+    const uniqueRanks = [...new Set(cards.map(c => c.charAt(0)))];
+    const rankValues = uniqueRanks.map(r => rankToValue(r)).sort((a, b) => b - a);
+    
+    // Check for regular straight
+    for (let i = 0; i <= rankValues.length - 5; i++) {
+        let consecutive = true;
+        for (let j = 0; j < 4; j++) {
+            if (rankValues[i + j] - rankValues[i + j + 1] !== 1) {
+                consecutive = false;
                 break;
             }
         }
-        else if (currentRank !== nextRank) {
-            consecutiveCount = 0;
+        if (consecutive) {
+            return [true, rankValues[i]];
         }
     }
-    if (sortedRanks.includes('A') && sortedRanks.includes('2') && sortedRanks.includes('3') && sortedRanks.includes('4') && sortedRanks.includes('5')) {
-        highestStraightRank = rankToValue('5');
+    
+    // Check for A-2-3-4-5 straight (wheel)
+    const hasAce = rankValues.includes(14);
+    const hasTwo = rankValues.includes(2);
+    const hasThree = rankValues.includes(3);
+    const hasFour = rankValues.includes(4);
+    const hasFive = rankValues.includes(5);
+    
+    if (hasAce && hasTwo && hasThree && hasFour && hasFive) {
+        return [true, 5]; // 5-high straight
     }
-    return [consecutiveCount === 4 || highestStraightRank !== 0, highestStraightRank];
+    
+    return [false, 0];
 };
 
 const hasThreeOfAKind = (cards) => {
@@ -156,14 +243,15 @@ const hasThreeOfAKind = (cards) => {
     return [hasThreeOfAKind, tripletRank];
 };
 
-// fix case where there are 3 2 pairs
 const hasTwoPair = (cards) => {
     const ranks = getRanks(cards);
     const pairs = Object.entries(ranks).filter(([rank, count]) => count === 2);
-    const hasTwoPair = pairs.length === 2;
-    const pairRanks = hasTwoPair ? pairs.map(([rank]) => rankToValue(rank)) : [0, 0];
-    const [firstPairRank, secondPairRank] = pairRanks.sort((a, b) => b - a);
-    return [hasTwoPair, [firstPairRank, secondPairRank]];
+    const hasTwoPair = pairs.length >= 2;
+    if (hasTwoPair) {
+        const pairRanks = pairs.map(([rank]) => rankToValue(rank)).sort((a, b) => b - a);
+        return [true, [pairRanks[0], pairRanks[1]]];
+    }
+    return [false, [0, 0]];
 };
 
 const hasPair = (cards) => {
